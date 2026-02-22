@@ -1,0 +1,8 @@
+﻿venv/
+__pycache__/
+*.pyc
+.env
+chroma_db/
+legal_db.pkl
+*.dll
+*.pyd
