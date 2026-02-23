@@ -1,4 +1,3 @@
-# data_loader.py
 import os
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -14,16 +13,16 @@ def load_legal_data():
     global CHUNKS, VECTORIZER, MATRIX
 
     if os.path.exists(DB_FILE):
-        print("✅ Legal database already exists. Loading...")
+        print("Legal database already exists. Loading...")
         with open(DB_FILE, "rb") as f:
             data = pickle.load(f)
             CHUNKS = data["chunks"]
             VECTORIZER = data["vectorizer"]
             MATRIX = data["matrix"]
-        print(f"✅ Loaded {len(CHUNKS)} legal sections.")
+        print("Loaded " + str(len(CHUNKS)) + " legal sections.")
         return
 
-    print("📚 Loading legal data into database...")
+    print("Loading legal data into database...")
 
     legal_data_path = "./legal_data"
 
@@ -34,7 +33,7 @@ def load_legal_data():
             chunks = [c.strip() for c in content.split('\n\n') if len(c.strip()) > 50]
             CHUNKS.extend(chunks)
 
-    print(f"🔄 Indexing {len(CHUNKS)} legal sections...")
+    print("Indexing " + str(len(CHUNKS)) + " legal sections...")
 
     VECTORIZER = TfidfVectorizer(stop_words='english')
     MATRIX = VECTORIZER.fit_transform(CHUNKS)
@@ -42,10 +41,10 @@ def load_legal_data():
     with open(DB_FILE, "wb") as f:
         pickle.dump({"chunks": CHUNKS, "vectorizer": VECTORIZER, "matrix": MATRIX}, f)
 
-    print(f"✅ Legal database ready with {len(CHUNKS)} sections!")
+    print("Legal database ready with " + str(len(CHUNKS)) + " sections!")
 
 
-def search_legal_database(query: str, n_results: int = 5):
+def search_legal_database(query, n_results=5):
     global CHUNKS, VECTORIZER, MATRIX
 
     if not CHUNKS:
@@ -56,15 +55,3 @@ def search_legal_database(query: str, n_results: int = 5):
     top_indices = np.argsort(scores)[::-1][:n_results]
 
     return [CHUNKS[i] for i in top_indices if scores[i] > 0]
-```
-
-Then also update `requirements.txt` — make sure it has **no chromadb**:
-```
-fastapi==0.111.0
-uvicorn==0.30.1
-python-dotenv==1.0.1
-groq==0.9.0
-scikit-learn==1.5.0
-numpy==1.26.4
-python-multipart==0.0.9
-requests==2.32.3
